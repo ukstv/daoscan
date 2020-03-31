@@ -1,25 +1,23 @@
 import { IPagination } from "./pagination.interface";
-import { OrganisationStorage } from "../storage/organisation.storage";
 import { Mutex } from "await-semaphore/index";
-import { OrganisationFactory } from "../domain/organisation.factory";
-import { OrganisationRecord } from "../storage/organisation.record";
 import { OrganisationConnectionCursor } from "../storage/organisation-connection.cursor";
 import { Page } from "../storage/page";
+import { OrganisationRepository } from "../domain/organisation.repository";
+import { Organisation } from "../domain/organisation";
 
 const DEFAULT_PAGE = 1;
 
 export class OrganisationConnection {
-  private _pageCache: Page<OrganisationRecord> | undefined;
+  private _pageCache: Page<Organisation> | undefined;
   private pageMutex = new Mutex();
 
   constructor(
     private readonly pagination: IPagination,
-    private readonly organisationStorage: OrganisationStorage,
-    private readonly organisationFactory: OrganisationFactory
+    private readonly organisationRepository: OrganisationRepository
   ) {}
 
   async totalCount() {
-    return this.organisationStorage.count();
+    return this.organisationRepository.count();
   }
 
   async pageInfo() {
@@ -40,8 +38,7 @@ export class OrganisationConnection {
 
   async edges() {
     const rows = await this.page();
-    return rows.entries.map(row => {
-      const organisation = this.organisationFactory.fromRecord(row);
+    return rows.entries.map(organisation => {
       return {
         node: organisation,
         cursor: OrganisationConnectionCursor.build(organisation).encode()
@@ -61,15 +58,14 @@ export class OrganisationConnection {
   }
 
   async _page() {
-    const query = await this.organisationStorage.connectionQuery();
     if (this.pagination.before) {
       const take = this.pagination.last || DEFAULT_PAGE;
       const before = OrganisationConnectionCursor.decode(this.pagination.before);
-      return Page.before(query, take, before);
+      return this.organisationRepository.pageBefore(take, before);
     } else {
       const take = this.pagination.first || DEFAULT_PAGE;
       const after = this.pagination.after ? OrganisationConnectionCursor.decode(this.pagination.after) : undefined;
-      return Page.after(query, take, after);
+      return this.organisationRepository.pageAfter(take, after);
     }
   }
 }

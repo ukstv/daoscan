@@ -5,6 +5,7 @@ import { PLATFORM } from "../domain/platform";
 import { OrganisationConnectionCursor } from "./organisation-connection.cursor";
 import { LessThanOrEqual, MoreThanOrEqual } from "typeorm";
 import { ConnectionQuery } from "./connection-query";
+import { Memoize } from "typescript-memoize";
 
 @Service(OrganisationStorage.name)
 export class OrganisationStorage {
@@ -20,6 +21,7 @@ export class OrganisationStorage {
     });
   }
 
+  @Memoize()
   async connectionQuery() {
     const repository = await this.repositoryFactory.reading(OrganisationRecord);
     const query = repository.createQueryBuilder("org").orderBy({

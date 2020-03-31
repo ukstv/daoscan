@@ -23,7 +23,11 @@ export class Page<Entry> implements Props<Entry> {
     this.entries = props.entries;
   }
 
-  static async after<Entry, Cursor>(query: ConnectionQuery<Entry, Cursor>, take: number, cursor?: Cursor) {
+  static async after<Entry, Cursor>(
+    query: ConnectionQuery<Entry, Cursor>,
+    take: number,
+    cursor?: Cursor
+  ): Promise<Page<Entry>> {
     const totalCount = await query.getCount();
     if (cursor) {
       query = query.after(cursor, false);
@@ -41,7 +45,11 @@ export class Page<Entry> implements Props<Entry> {
     });
   }
 
-  static async before<Entry, Cursor>(query: ConnectionQuery<Entry, Cursor>, take: number, cursor: Cursor) {
+  static async before<Entry, Cursor>(
+    query: ConnectionQuery<Entry, Cursor>,
+    take: number,
+    cursor: Cursor
+  ): Promise<Page<Entry>> {
     const totalCount = await query.getCount();
     const before = query.before(cursor, false);
 
@@ -57,12 +65,23 @@ export class Page<Entry> implements Props<Entry> {
     const endIndex = startIndex + take - 1;
     const afterCount = totalCount - offset - take;
 
-    return {
+    return new Page({
       startIndex: startIndex,
       endIndex: endIndex,
       hasPreviousPage: offset > 0,
       hasNextPage: afterCount > 0,
       entries: entries
-    };
+    });
+  }
+
+  map<A>(f: (entry: Entry) => A): Page<A> {
+    const nextEntries = this.entries.map(f);
+    return new Page({
+      startIndex: this.startIndex,
+      endIndex: this.endIndex,
+      hasPreviousPage: this.hasPreviousPage,
+      hasNextPage: this.hasNextPage,
+      entries: nextEntries
+    });
   }
 }

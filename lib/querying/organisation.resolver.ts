@@ -2,18 +2,14 @@ import { Inject, Service } from "typedi";
 import { bind } from "decko";
 import { EthereumService } from "../services/ethereum.service";
 import { MembershipRepository } from "../storage/membership.repository";
-import { BalanceService } from "./balance.service";
 import { Organisation } from "../domain/organisation";
-import { OrganisationFactory } from "../domain/organisation.factory";
 import { ProposalRepository } from "../storage/proposal.repository";
 import { ProposalFactory } from "../domain/proposal.factory";
-import { OrganisationService } from "../domain/organisation.service";
 import { OrganisationParticipantConnection } from "./organisation-participant-connection";
 import { Token } from "../domain/token";
 import { Participant } from "../domain/participant";
 import { IPagination } from "./pagination.interface";
 import { OrganisationConnection } from "./organisation-connection";
-import { OrganisationStorage } from "../storage/organisation.storage";
 import { OrganisationProposalConnection } from "./organisation-proposal-connection";
 import { OrganisationRepository } from "../domain/organisation.repository";
 
@@ -22,12 +18,8 @@ export class OrganisationResolver {
   constructor(
     @Inject(EthereumService.name) private readonly ethereum: EthereumService,
     @Inject(MembershipRepository.name) private readonly membershipRepository: MembershipRepository,
-    @Inject(BalanceService.name) private readonly balance: BalanceService,
-    @Inject(OrganisationFactory.name) private readonly organisationFactory: OrganisationFactory,
     @Inject(ProposalRepository.name) private readonly proposalRepository: ProposalRepository,
     @Inject(ProposalFactory.name) private readonly proposalFactory: ProposalFactory,
-    @Inject(OrganisationService.name) private readonly organisationService: OrganisationService,
-    @Inject(OrganisationStorage.name) private readonly organisationStorage: OrganisationStorage,
     @Inject(OrganisationRepository.name) private readonly organisationRepository: OrganisationRepository
   ) {}
 
@@ -38,7 +30,7 @@ export class OrganisationResolver {
 
   @bind()
   async organisations(pagination: IPagination) {
-    return new OrganisationConnection(pagination, this.organisationStorage, this.organisationFactory);
+    return new OrganisationConnection(pagination, this.organisationRepository);
   }
 
   @bind()
