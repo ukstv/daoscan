@@ -4,7 +4,7 @@ import { EthereumService } from "../services/ethereum.service";
 import { Organisation } from "./organisation";
 import { OrganisationFactory } from "./organisation.factory";
 import { OrganisationConnectionCursor } from "../storage/organisation-connection.cursor";
-import { Page } from "../storage/page";
+import { Page, pageAfter, pageBefore } from "../storage/page";
 import { OrganisationRecord } from "../storage/organisation.record";
 
 @Service(OrganisationRepository.name)
@@ -29,17 +29,21 @@ export class OrganisationRepository {
 
   async pageAfter(take: number, after?: OrganisationConnectionCursor): Promise<Page<Organisation>> {
     const query = await this.organisationStorage.connectionQuery();
-    const recordPage = await Page.after(query, take, after);
+    const recordPage = await pageAfter(query, take, after);
     return this.entityPage(recordPage);
   }
 
   async pageBefore(take: number, before: OrganisationConnectionCursor): Promise<Page<Organisation>> {
     const query = await this.organisationStorage.connectionQuery();
-    const recordPage = await Page.before(query, take, before);
+    const recordPage = await pageBefore(query, take, before);
     return this.entityPage(recordPage);
   }
 
   entityPage(recordPage: Page<OrganisationRecord>): Page<Organisation> {
-    return recordPage.map(e => this.organisationFactory.fromRecord(e));
+    const entries = recordPage.entries.map(e => this.organisationFactory.fromRecord(e));
+    return {
+      ...recordPage,
+      entries
+    };
   }
 }

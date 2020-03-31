@@ -4,10 +4,10 @@ interface Props {
 }
 
 export class OrganisationConnectionCursor {
-  constructor(readonly id: bigint, readonly createdAt: Date) {}
+  constructor(readonly id: string, readonly createdAt: Date) {}
 
   static build(props: Props) {
-    const id = BigInt(props.id);
+    const id = props.id.toString();
     const createdAt = new Date(props.createdAt);
     return new OrganisationConnectionCursor(id, createdAt);
   }
@@ -20,7 +20,7 @@ export class OrganisationConnectionCursor {
 
   encode(): string {
     const payload = {
-      id: this.id.toString(),
+      id: this.id,
       createdAt: this.createdAt.toISOString()
     };
     const string = JSON.stringify(payload);

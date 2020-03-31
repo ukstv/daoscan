@@ -2,6 +2,7 @@ import { Inject, Service } from "typedi";
 import { RepositoryFactory } from "./repository.factory";
 import { ProposalRecord } from "./proposal.record";
 import { Repository, SelectQueryBuilder } from "typeorm";
+import { pageAfter } from "./page";
 
 class OrganisationConnectionQuery {
   private readonly alias = this.query.alias;
