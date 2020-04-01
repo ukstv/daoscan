@@ -3,7 +3,7 @@ import { bind } from "decko";
 import { EthereumService } from "../services/ethereum.service";
 import { MembershipRepository } from "../storage/membership.repository";
 import { Organisation } from "../domain/organisation";
-import { ProposalRepository } from "../storage/proposal.repository";
+import { ProposalStorage } from "../storage/proposal.storage";
 import { ProposalFactory } from "../domain/proposal.factory";
 import { OrganisationParticipantConnection } from "./organisation-participant-connection";
 import { Token } from "../domain/token";
@@ -18,7 +18,7 @@ export class OrganisationResolver {
   constructor(
     @Inject(EthereumService.name) private readonly ethereum: EthereumService,
     @Inject(MembershipRepository.name) private readonly membershipRepository: MembershipRepository,
-    @Inject(ProposalRepository.name) private readonly proposalRepository: ProposalRepository,
+    @Inject(ProposalStorage.name) private readonly proposalRepository: ProposalStorage,
     @Inject(ProposalFactory.name) private readonly proposalFactory: ProposalFactory,
     @Inject(OrganisationRepository.name) private readonly organisationRepository: OrganisationRepository
   ) {}

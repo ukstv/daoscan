@@ -21,7 +21,7 @@ import { SubmitProposalEvent } from "./submit-proposal.event";
 import { NotImplementedError } from "../../shared/errors";
 import { SubmitVoteEvent } from "./submit-vote.event";
 import { ProcessProposalEvent } from "./process-proposal.event";
-import { ProposalRepository } from "../../storage/proposal.repository";
+import { ProposalStorage } from "../../storage/proposal.storage";
 
 @Service(ScrapingEventFactory.name)
 export class ScrapingEventFactory {
@@ -35,7 +35,7 @@ export class ScrapingEventFactory {
     @Inject(DelegateRepository.name) private readonly delegateRepository: DelegateRepository,
     @Inject(HistoryRepository.name) private readonly historyRepository: HistoryRepository,
     @Inject(ConnectionFactory.name) private readonly connectionFactory: ConnectionFactory,
-    @Inject(ProposalRepository.name) private readonly proposalRepository: ProposalRepository
+    @Inject(ProposalStorage.name) private readonly proposalRepository: ProposalStorage
   ) {}
 
   async fromStorage(eventId: bigint): Promise<ScrapingEvent | undefined> {

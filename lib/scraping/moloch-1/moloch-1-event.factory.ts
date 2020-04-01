@@ -32,7 +32,7 @@ import { SubmitProposalEvent } from "../events/submit-proposal.event";
 import { SubmitVoteEvent } from "../events/submit-vote.event";
 import { VOTE_DECISION } from "../../domain/vote-decision";
 import { ProcessProposalEvent } from "../events/process-proposal.event";
-import { ProposalRepository } from "../../storage/proposal.repository";
+import { ProposalStorage } from "../../storage/proposal.storage";
 import { AbiItem } from "web3-utils";
 import ERC20_TOKEN_ABI from "../../querying/erc20-token.abi.json";
 import { Token } from "../../domain/token";
@@ -66,7 +66,7 @@ export class Moloch1EventFactory {
     @Inject(MembershipRepository.name) private readonly membershipRepository: MembershipRepository,
     @Inject(DelegateRepository.name) private readonly delegateRepository: DelegateRepository,
     @Inject(HistoryRepository.name) private readonly historyRepository: HistoryRepository,
-    @Inject(ProposalRepository.name) private readonly proposalRepository: ProposalRepository,
+    @Inject(ProposalStorage.name) private readonly proposalRepository: ProposalStorage,
     @Inject(TokenFactory.name) private readonly tokenFactory: TokenFactory
   ) {}
 

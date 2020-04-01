@@ -1,5 +1,5 @@
 import { IPagination } from "./pagination.interface";
-import { ProposalRepository } from "../storage/proposal.repository";
+import { ProposalStorage } from "../storage/proposal.storage";
 import { Organisation } from "../domain/organisation";
 import { Mutex } from "await-semaphore/index";
 import { ProposalRecord as ProposalRow } from "../storage/proposal.record";
@@ -36,7 +36,7 @@ export class OrganisationProposalConnection {
   constructor(
     private readonly organisation: Organisation,
     private readonly pagination: IPagination,
-    private readonly proposalRepository: ProposalRepository,
+    private readonly proposalRepository: ProposalStorage,
     private readonly proposalFactory: ProposalFactory
   ) {}
 

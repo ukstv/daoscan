@@ -4,7 +4,7 @@ import { PLATFORM } from "../../domain/platform";
 import { EventRecord } from "../../storage/event.record";
 import { HistoryRecord } from "../../storage/history.record";
 import { RESOURCE_KIND } from "../../storage/resource.kind";
-import { ProposalRepository } from "../../storage/proposal.repository";
+import { ProposalStorage } from "../../storage/proposal.storage";
 import { ConnectionFactory } from "../../storage/connection.factory";
 import { PROPOSAL_STATUS } from "../../domain/proposal";
 import { EventRepository } from "../../storage/event.repository";
@@ -39,7 +39,7 @@ export class ProcessProposalEvent implements IScrapingEvent {
 
   constructor(
     private readonly props: ProcessProposalEventProps,
-    private readonly proposalRepository: ProposalRepository,
+    private readonly proposalRepository: ProposalStorage,
     private readonly connectionFactory: ConnectionFactory,
     private readonly eventRepository: EventRepository,
     private readonly historyRepository: HistoryRepository

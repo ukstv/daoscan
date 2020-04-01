@@ -10,7 +10,7 @@ import { BlockFactory } from "../scraping/block.factory";
 import { OrganisationStorage } from "../storage/organisation.storage";
 import { HistoryRepository } from "../storage/history.repository";
 import { RESOURCE_KIND } from "../storage/resource.kind";
-import { ProposalRepository } from "../storage/proposal.repository";
+import { ProposalStorage } from "../storage/proposal.storage";
 import { SCRAPING_EVENT_KIND } from "../scraping/events/scraping-event.kind";
 import { VoteRepository } from "../storage/vote.repository";
 
@@ -26,7 +26,7 @@ export class MigrationController {
     @Inject(BlockFactory.name) private readonly blockFactory: BlockFactory,
     @Inject(OrganisationStorage.name) private readonly organisationRepository: OrganisationStorage,
     @Inject(HistoryRepository.name) private readonly historyRepository: HistoryRepository,
-    @Inject(ProposalRepository.name) private readonly proposalRepository: ProposalRepository,
+    @Inject(ProposalStorage.name) private readonly proposalRepository: ProposalStorage,
     @Inject(VoteRepository.name) private readonly voteRepository: VoteRepository
   ) {
     this.token = env.readString(ENV.UTIL_SECRET);

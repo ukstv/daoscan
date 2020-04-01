@@ -2,7 +2,6 @@ import { Inject, Service } from "typedi";
 import { RepositoryFactory } from "./repository.factory";
 import { ProposalRecord } from "./proposal.record";
 import { Repository, SelectQueryBuilder } from "typeorm";
-import { pageAfter } from "./page";
 
 class OrganisationConnectionQuery {
   private readonly alias = this.query.alias;
@@ -52,8 +51,8 @@ class OrganisationConnectionQuery {
   }
 }
 
-@Service(ProposalRepository.name)
-export class ProposalRepository {
+@Service(ProposalStorage.name)
+export class ProposalStorage {
   constructor(@Inject(RepositoryFactory.name) private readonly repositoryFactory: RepositoryFactory) {}
 
   async byOrganisationAndIndex(organisationAddress: string, index: number) {
