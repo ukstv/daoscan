@@ -2,36 +2,21 @@ import { IPagination } from "./pagination.interface";
 import { ProposalStorage } from "../storage/proposal.storage";
 import { Organisation } from "../domain/organisation";
 import { Mutex } from "await-semaphore/index";
-import { ProposalRecord as ProposalRow } from "../storage/proposal.record";
+import { ProposalRecord } from "../storage/proposal.record";
 import { ProposalFactory } from "../domain/proposal.factory";
+import { OrganisationProposalConnectionCursor } from "../storage/organisation-proposal-connection.cursor";
+import { Page, pageAfter, pageBefore } from "../storage/page";
+import { Proposal } from "../domain/proposal";
 
-const DEFAULT_PAGE_SIZE = 25;
+const DEFAULT_PAGE_SIZE = 1;
 
 function proposalToCursor(proposal: { index: number }) {
-  const payload = { index: proposal.index };
-  const string = JSON.stringify(payload);
-  return Buffer.from(string).toString("base64");
-}
-
-function decodeCursor(cursor: string) {
-  const buffer = Buffer.from(cursor, "base64").toString();
-  const payload = JSON.parse(buffer);
-  return {
-    index: Number(payload.index)
-  };
-}
-
-interface Raw {
-  startIndex: number;
-  entries: ProposalRow[];
-  hasNextPage: boolean;
-  endIndex: number;
-  hasPreviousPage: boolean;
+  return OrganisationProposalConnectionCursor.build(proposal).encode();
 }
 
 export class OrganisationProposalConnection {
   private pageMutex = new Mutex();
-  private _pageCached: Raw | undefined;
+  private _pageCached: Page<Proposal> | undefined;
 
   constructor(
     private readonly organisation: Organisation,
@@ -46,8 +31,7 @@ export class OrganisationProposalConnection {
 
   async edges() {
     const page = await this.page();
-    return page.entries.map(row => {
-      const proposal = this.proposalFactory.fromRecord(row);
+    return page.entries.map(proposal => {
       return {
         node: proposal,
         cursor: proposalToCursor(proposal)
@@ -82,15 +66,28 @@ export class OrganisationProposalConnection {
     });
   }
 
-  async _page(): Promise<Raw> {
+  async _page(): Promise<Page<Proposal>> {
+    const query = await this.proposalRepository.connectionQuery(this.organisation.address);
     if (this.pagination.before) {
-      const last = this.pagination.last || DEFAULT_PAGE_SIZE;
-      const before = decodeCursor(this.pagination.before);
-      return this.proposalRepository.last(this.organisation.address, last, before);
+      const take = this.pagination.last || DEFAULT_PAGE_SIZE;
+      const before = OrganisationProposalConnectionCursor.decode(this.pagination.before);
+      const recordPage = await pageBefore(query, take, before);
+      return this.entityPage(recordPage);
     } else {
-      const first = this.pagination.first || DEFAULT_PAGE_SIZE;
-      const after = this.pagination.after ? decodeCursor(this.pagination.after) : undefined;
-      return this.proposalRepository.first(this.organisation.address, first, after);
+      const take = this.pagination.first || DEFAULT_PAGE_SIZE;
+      const after = this.pagination.after
+        ? OrganisationProposalConnectionCursor.decode(this.pagination.after)
+        : undefined;
+      const recordPage = await pageAfter(query, take, after);
+      return this.entityPage(recordPage);
     }
+  }
+
+  entityPage(recordPage: Page<ProposalRecord>): Page<Proposal> {
+    const entries = recordPage.entries.map(e => this.proposalFactory.fromRecord(e));
+    return {
+      ...recordPage,
+      entries
+    };
   }
 }
