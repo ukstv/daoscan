@@ -14,6 +14,7 @@ import { OrganisationProposalConnection } from "./organisation-proposal-connecti
 import { OrganisationRepository } from "../domain/organisation.repository";
 import { OrganisationTotalSupplyCache } from "./organisation-total-supply.cache";
 import { Shares } from "../domain/shares";
+import { OrganisationBankCache } from "./organisation-bank.cache";
 
 @Service(OrganisationResolver.name)
 export class OrganisationResolver {
@@ -23,7 +24,8 @@ export class OrganisationResolver {
     @Inject(ProposalStorage.name) private readonly proposalRepository: ProposalStorage,
     @Inject(ProposalFactory.name) private readonly proposalFactory: ProposalFactory,
     @Inject(OrganisationRepository.name) private readonly organisationRepository: OrganisationRepository,
-    @Inject(OrganisationTotalSupplyCache.name) private readonly totalSupplyCache: OrganisationTotalSupplyCache
+    @Inject(OrganisationTotalSupplyCache.name) private readonly totalSupplyCache: OrganisationTotalSupplyCache,
+    @Inject(OrganisationBankCache.name) private readonly bankCache: OrganisationBankCache
   ) {}
 
   @bind()
@@ -45,7 +47,9 @@ export class OrganisationResolver {
 
   @bind()
   async bank(root: Organisation): Promise<Token[]> {
-    return root.bank();
+    return this.bankCache.use(root.address, async () => {
+      return root.bank();
+    });
   }
 
   @bind()

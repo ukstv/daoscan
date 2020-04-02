@@ -91,7 +91,10 @@ export class MembershipRepository {
     return Number(result.count);
   }
 
-  async byAddressInOrganisation(organisationAddress: string, accountAddress: string): Promise<MembershipRecord | undefined> {
+  async byAddressInOrganisation(
+    organisationAddress: string,
+    accountAddress: string
+  ): Promise<MembershipRecord | undefined> {
     const repository = await this.repositoryFactory.reading(MembershipRecord);
     return repository.findOne({
       organisationAddress: organisationAddress,
