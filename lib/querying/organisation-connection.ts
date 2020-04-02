@@ -5,7 +5,7 @@ import { Page } from "../storage/page";
 import { OrganisationRepository } from "../domain/organisation.repository";
 import { Organisation } from "../domain/organisation";
 
-const DEFAULT_PAGE = 1;
+const DEFAULT_PAGE = 25;
 
 export class OrganisationConnection {
   private _pageCache: Page<Organisation> | undefined;
