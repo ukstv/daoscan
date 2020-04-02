@@ -12,6 +12,8 @@ import { IPagination } from "./pagination.interface";
 import { OrganisationConnection } from "./organisation-connection";
 import { OrganisationProposalConnection } from "./organisation-proposal-connection";
 import { OrganisationRepository } from "../domain/organisation.repository";
+import { OrganisationTotalSupplyCache } from "./organisation-total-supply.cache";
+import { Shares } from "../domain/shares";
 
 @Service(OrganisationResolver.name)
 export class OrganisationResolver {
@@ -20,7 +22,8 @@ export class OrganisationResolver {
     @Inject(MembershipRepository.name) private readonly membershipRepository: MembershipRepository,
     @Inject(ProposalStorage.name) private readonly proposalRepository: ProposalStorage,
     @Inject(ProposalFactory.name) private readonly proposalFactory: ProposalFactory,
-    @Inject(OrganisationRepository.name) private readonly organisationRepository: OrganisationRepository
+    @Inject(OrganisationRepository.name) private readonly organisationRepository: OrganisationRepository,
+    @Inject(OrganisationTotalSupplyCache.name) private readonly totalSupplyCache: OrganisationTotalSupplyCache
   ) {}
 
   @bind()
@@ -34,8 +37,10 @@ export class OrganisationResolver {
   }
 
   @bind()
-  async totalSupply(root: Organisation) {
-    return root.shares();
+  async totalSupply(root: Organisation): Promise<Shares | undefined> {
+    return this.totalSupplyCache.use(root.address, async () => {
+      return root.shares();
+    });
   }
 
   @bind()

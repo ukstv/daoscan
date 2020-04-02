@@ -8,7 +8,7 @@ import { OrganisationProposalConnectionCursor } from "../storage/organisation-pr
 import { Page, pageAfter, pageBefore } from "../storage/page";
 import { Proposal } from "../domain/proposal";
 
-const DEFAULT_PAGE_SIZE = 1;
+const DEFAULT_PAGE_SIZE = 25;
 
 function proposalToCursor(proposal: { index: number }) {
   return OrganisationProposalConnectionCursor.build(proposal).encode();

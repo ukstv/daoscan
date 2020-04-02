@@ -26,7 +26,7 @@ export class ConnectionFactory {
       url: this.readingConnectionUrl,
       migrationsRun: false,
       entities: [`${path.join(__dirname, "./*.record.{ts,js}")}`],
-      logging: false
+      logging: "all"
     });
   }
 

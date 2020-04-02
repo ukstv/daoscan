@@ -4,7 +4,7 @@ import { Container } from "typedi";
 import { GraphqlController } from "../lib/querying/graphql.controller";
 import { migrateUp } from "../lib/shared/migrate-up";
 
-migrateUp();
+// migrateUp();
 
 const graphqlController = Container.get(GraphqlController);
 
