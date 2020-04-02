@@ -7,13 +7,15 @@ import { IPagination } from "./pagination.interface";
 import { TokenFactory } from "../domain/token.factory";
 import { ProposalStats } from "./proposal-stats";
 import { VoteFactory } from "../domain/vote.factory";
+import { ProposalStatsCache } from "./proposal-stats.cache";
 
 @Service(ProposalResolver.name)
 export class ProposalResolver {
   constructor(
     @Inject(VoteRepository.name) private readonly voteRepository: VoteRepository,
     @Inject(TokenFactory.name) private readonly tokenFactory: TokenFactory,
-    @Inject(VoteFactory.name) private readonly voteFactory: VoteFactory
+    @Inject(VoteFactory.name) private readonly voteFactory: VoteFactory,
+    @Inject(ProposalStatsCache.name) private readonly statsCache: ProposalStatsCache
   ) {}
 
   @bind()
@@ -23,6 +25,9 @@ export class ProposalResolver {
 
   @bind()
   async stats(root: Proposal) {
-    return new ProposalStats(root, this.voteRepository, this.tokenFactory);
+    const key: [string, number] = [root.organisationAddress, root.index];
+    return this.statsCache.use(key, async () => {
+      return new ProposalStats(root, this.voteRepository, this.tokenFactory);
+    });
   }
 }

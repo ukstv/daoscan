@@ -24,19 +24,6 @@ export class CacheMap<K, V> {
     this.values.set(key, value);
   }
 
-  async use(key: K, setter: () => Promise<V>): Promise<V> {
-    return this.mutex.use(async () => {
-      const cached = this.get(key);
-      if (cached) {
-        return cached;
-      } else {
-        const value = await setter();
-        this.set(key, value);
-        return value;
-      }
-    });
-  }
-
   invalidate(key: K) {
     this.expiration.delete(key);
     this.values.delete(key);

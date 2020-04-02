@@ -5,30 +5,38 @@ import { VoteRecord } from "../storage/vote.record";
 import { Shares } from "../domain/shares";
 import BigNumber from "bignumber.js";
 import { TokenFactory } from "../domain/token.factory";
+import { Memoize } from "typescript-memoize";
+import { Mutex } from "await-semaphore";
 
 export class ProposalStats {
+  private readonly mutex = new Mutex();
+
   constructor(
     private readonly proposal: Proposal,
     private readonly voteRepository: VoteRepository,
     private readonly tokenFactory: TokenFactory
   ) {}
 
+  @Memoize()
   async yesVotes() {
-    return this.voteRepository.countByProposalDecision(this.proposal, VOTE_DECISION.YES);
+    const votes = await this._yesVotes();
+    return votes.length;
   }
 
+  @Memoize()
   async noVotes() {
-    return this.voteRepository.countByProposalDecision(this.proposal, VOTE_DECISION.NO);
+    const votes = await this._noVotes();
+    return votes.length;
   }
 
   async yesShares() {
-    const yesVotes = await this.voteRepository.allByProposalDecision(this.proposal, VOTE_DECISION.YES);
-    return this.votesToShares(yesVotes);
+    const votes = await this._yesVotes();
+    return this.votesToShares(votes);
   }
 
   async noShares() {
-    const yesVotes = await this.voteRepository.allByProposalDecision(this.proposal, VOTE_DECISION.NO);
-    return this.votesToShares(yesVotes);
+    const votes = await this._noVotes();
+    return this.votesToShares(votes);
   }
 
   private async votesToShares(votes: VoteRecord[]) {
@@ -41,6 +49,25 @@ export class ProposalStats {
       symbol: shares?.symbol,
       amount: sharesSum.toString(),
       decimals: shares?.decimals || 0
+    });
+  }
+
+  @Memoize()
+  private async _noVotes() {
+    const votes = await this.votes();
+    return votes.filter(v => v.decision === VOTE_DECISION.NO);
+  }
+
+  @Memoize()
+  private async _yesVotes() {
+    const votes = await this.votes();
+    return votes.filter(v => v.decision === VOTE_DECISION.YES);
+  }
+
+  @Memoize()
+  private votes(): Promise<VoteRecord[]> {
+    return this.mutex.use(async () => {
+      return this.voteRepository.allByProposal(this.proposal);
     });
   }
 }

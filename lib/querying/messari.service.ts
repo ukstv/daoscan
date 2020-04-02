@@ -2,6 +2,8 @@ import { Service } from "typedi";
 import { CacheMap } from "../shared/cache-map";
 import axios from "axios";
 
+const TTL = 20 * 160 * 1000; // 20 Minutes
+
 export function messariEndpoint(symbol: string) {
   return `https://data.messari.io/api/v1/assets/${symbol}/metrics`;
 }
@@ -12,7 +14,7 @@ const EQUIVALENTS = Object.freeze(
 
 @Service(MessariService.name)
 export class MessariService {
-  private readonly cache = new CacheMap<string, number>(120 * 1000);
+  private readonly cache = new CacheMap<string, number>(TTL);
 
   messariSymbol(symbol: string) {
     const found = EQUIVALENTS.get(symbol);
