@@ -7,10 +7,10 @@ type Base = ConnectionQuery<OrganisationRecord, OrganisationConnectionCursor>;
 
 export class OrganisationConnectionQuery extends ConnectionQuery<OrganisationRecord, OrganisationConnectionCursor> {
   after(cursor: OrganisationConnectionCursor, include: boolean): Base {
-    const cmp = include ? ">=" : ">";
+    const cmp = include ? "<=" : "<";
     const next = this.query
       .clone()
-      .where({ createdAt: MoreThanOrEqual(cursor.createdAt) })
+      .where({ createdAt: LessThanOrEqual(cursor.createdAt) })
       .andWhere(`(${this.query.alias}.createdAt ${cmp} :createdAt OR ${this.query.alias}.id ${cmp} :id)`, {
         createdAt: cursor.createdAt.toISOString(),
         id: cursor.id.toString()
@@ -19,10 +19,10 @@ export class OrganisationConnectionQuery extends ConnectionQuery<OrganisationRec
   }
 
   before(cursor: OrganisationConnectionCursor, include: boolean): Base {
-    const cmp = include ? "<=" : "<";
+    const cmp = include ? ">=" : ">";
     const next = this.query
       .clone()
-      .where({ createdAt: LessThanOrEqual(cursor.createdAt) })
+      .where({ createdAt: MoreThanOrEqual(cursor.createdAt) })
       .andWhere(`(${this.query.alias}.createdAt ${cmp} :createdAt OR ${this.query.alias}.id ${cmp} :id)`, {
         createdAt: cursor.createdAt.toISOString(),
         id: cursor.id.toString()
